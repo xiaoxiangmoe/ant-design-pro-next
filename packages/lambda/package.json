@@ -1,0 +1,40 @@
+{
+  "name": "@-.-/lambda",
+  "version": "0.0.0",
+  "repository": "https://github.com/xiaoxiangmoe/ant-design-pro-next.git",
+  "author": "ZHAO Jinxiang",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "netlify-lambda serve src/entrypoints",
+    "build": "netlify-lambda build src/entrypoints"
+  },
+  "dependencies": {
+    "apollo-server-lambda": "^2.3.1",
+    "bufferutil": "^4.0.1",
+    "casual": "^1.6.0",
+    "graphql": "^14.0.2",
+    "http-status-codes": "^1.3.0",
+    "isemail": "^3.2.0",
+    "middy": "^0.20.0",
+    "netlify-lambda": "^1.2.0",
+    "utf-8-validate": "^5.0.2",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "@babel/plugin-transform-runtime": "^7.2.0",
+    "@babel/preset-typescript": "^7.1.0",
+    "@types/aws-lambda": "^8.10.17",
+    "@types/http-status-codes": "^1.2.0",
+    "@types/node": "10.12.18",
+    "@types/uuid": "^3.4.4",
+    "aws-lambda": "^0.1.2",
+    "typescript": "3.2.2"
+  },
+  "workspaces": {
+    "nohoist": [
+      "apollo-server-lambda",
+      "graphql"
+    ]
+  }
+}

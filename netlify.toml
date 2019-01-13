@@ -1,0 +1,6 @@
+[build]
+  command = "yarn run build"
+  publish = "packages/page/build"
+  functions = "packages/lambda/build"
+[build.environment]
+  YARN_VERSION = "1.13.0"
