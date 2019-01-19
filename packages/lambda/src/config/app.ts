@@ -24,7 +24,7 @@ export const tenantUuid = uuidv5(tenantName, identityPlatformInstanceUuid);
  *
  * issuer: a person or company that supplies, publishes, or makes something available
  */
-export const issuer = 'https://the-identity-platform-url/' + tenantUuid;
+export const issuer = `https://the-identity-platform-url/${tenantUuid}`;
 
 const appName = 'ant-design-pro-next';
 export const appUuid = uuidv5(appName, tenantUuid);

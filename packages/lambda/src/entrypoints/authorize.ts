@@ -2,15 +2,17 @@
 import { APIGatewayEvent, Handler } from 'aws-lambda';
 import * as HttpStatus from 'http-status-codes';
 import { validate as emailValidate } from 'isemail';
+import jwt from 'jsonwebtoken';
 import middy from 'middy';
 import { cors } from 'middy/middlewares';
 import * as querystring from 'querystring';
 import { appUuid, issuer, tenantUuid } from '../config/app';
 import { app_secret } from '../config/secret';
 import { atob, btoa } from '../utils/abab';
-import { hmacSha256 } from '../utils/crypto';
+import { isPreflightEvent } from '../utils/is-preflight-event';
 import uuidv5 from '../utils/uuidv5';
-const expires_in = 3600;
+
+const expires_in = 36000;
 
 /**
  * The request is missing a required parameter, includes an
@@ -59,14 +61,7 @@ const InvalidGrant = (error_description: string) => ({
   }),
 });
 
-const base64UrlEncode = (x: object) => btoa(JSON.stringify(x));
-
 const getTokens = (username: string, password: string) => {
-  const joseHeader = {
-    alg: 'HS256',
-    typ: 'JWT',
-  };
-
   const now = Math.floor(new Date().getTime() / 1000);
   /**
    * Claims:
@@ -96,17 +91,9 @@ const getTokens = (username: string, password: string) => {
     uuid: uuidv5(username, tenantUuid), // `oid` in Azure AD id token
     email: username,
   };
-  const encodedHeader = base64UrlEncode(joseHeader);
-  const encodedPayload = base64UrlEncode(jwsPayload);
-  const verifySignature = hmacSha256(
-    // tslint:disable-next-line: prefer-template
-    encodedHeader + '.' + encodedPayload,
-    app_secret,
-  );
 
-  const access_token =
-    // tslint:disable-next-line: prefer-template
-    encodedHeader + '.' + encodedPayload + '.' + verifySignature;
+  const access_token = jwt.sign(jwsPayload, app_secret);
+
   const refresh_token = btoa(JSON.stringify({ username, password }));
   return { access_token, refresh_token };
 };
@@ -117,6 +104,9 @@ const getTokensByRefreshToken = (refresh_token: string) => {
   return getTokens(username, password);
 };
 const authorizeHandler: Handler<APIGatewayEvent> = async (event, context) => {
+  if (isPreflightEvent(event)) {
+    return { statusCode: HttpStatus.OK };
+  }
   if (event.httpMethod !== 'POST') {
     return InvalidRequest('Http Method should be POST');
   }
